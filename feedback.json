@@ -1,0 +1,137 @@
+[
+  {
+    "id": 0,
+    "action": "approved",
+    "original": "360JT_BD_dk-360-ruleA20260303-P-360JT-UNHIT-NewRisk0226-20260315-HONOR-T-20260316_RICH-HONOR",
+    "normalized": "360JT_BD_dk-360-ruleA20260303-P-360JT-UNHIT-NewRisk0226-20260315-HONOR-T-20260316-F-ALL_RICH-HONOR",
+    "final": "360JT_BD_dk-360-ruleA20260303-P-360JT-UNHIT-NewRisk0226-20260315-HONOR-T-20260316-F-ALL_RICH-HONOR",
+    "note": "",
+    "timestamp": "2026-03-23T02:17:49.480Z"
+  },
+  {
+    "id": 1,
+    "action": "approved",
+    "original": "360JT_BD_dk-360-ruleA20260303-P-360JT-UNHIT-NewRisk0226-20260315-OPPO-T-20260316_RICH-OPPO",
+    "normalized": "360JT_BD_dk-360-ruleA20260303-P-360JT-UNHIT-NewRisk0226-20260315-OPPO-T-20260316-F-ALL_RICH-OPPO",
+    "final": "360JT_BD_dk-360-ruleA20260303-P-360JT-UNHIT-NewRisk0226-20260315-OPPO-T-20260316-F-ALL_RICH-OPPO",
+    "note": "",
+    "timestamp": "2026-03-23T02:17:53.903Z"
+  },
+  {
+    "id": 2,
+    "action": "approved",
+    "original": "360JT_BD_dk-360-ruleA20260303-P-360JT-UNHIT-NewRisk0226-20260315-VIVO-T-20260316_IP-VIVO",
+    "normalized": "360JT_BD_dk-360-ruleA20260303-P-360JT-UNHIT-NewRisk0226-20260315-VIVO-T-20260316-F-ALL_IP-VIVO",
+    "final": "360JT_BD_dk-360-ruleA20260303-P-360JT-UNHIT-NewRisk0226-20260315-VIVO-T-20260316-F-ALL_IP-VIVO",
+    "note": "",
+    "timestamp": "2026-03-23T02:17:54.879Z"
+  },
+  {
+    "id": 3,
+    "action": "approved",
+    "original": "360JT_BD_dk-360-ruleA20260303-P-360JT-UNHIT-NewRisk0226-20260315-XIAOMI-T-20260316_XIAOMI",
+    "normalized": "360JT_BD_dk-360-ruleA20260303-P-360JT-UNHIT-NewRisk0226-20260315-XIAOMI-T-20260316-F-ALL_XIAOMI",
+    "final": "360JT_BD_dk-360-ruleA20260303-P-360JT-UNHIT-NewRisk0226-20260315-XIAOMI-T-20260316-F-ALL_XIAOMI",
+    "note": "",
+    "timestamp": "2026-03-23T02:17:55.808Z"
+  },
+  {
+    "id": 4,
+    "action": "approved",
+    "original": "360JT_BD_dk-360-ruleB20260303-P-360JT-UNHIT-NewRisk0226-20260315-HONOR-T-20260315_RICH-HONOR",
+    "normalized": "360JT_BD_dk-360-ruleB20260303-P-360JT-UNHIT-NewRisk0226-20260315-HONOR-T-20260315-F-ALL_RICH-HONOR",
+    "final": "360JT_BD_dk-360-ruleB20260303-P-360JT-UNHIT-NewRisk0226-20260315-HONOR-T-20260315-F-ALL_RICH-HONOR",
+    "note": "",
+    "timestamp": "2026-03-23T02:18:05.159Z"
+  },
+  {
+    "id": 5,
+    "action": "approved",
+    "original": "360JT_BD_dk-360-ruleB20260303-P-360JT-UNHIT-NewRisk0226-20260315-OPPO-T-20260315_RICH-OPPO",
+    "normalized": "360JT_BD_dk-360-ruleB20260303-P-360JT-UNHIT-NewRisk0226-20260315-OPPO-T-20260315-F-ALL_RICH-OPPO",
+    "final": "360JT_BD_dk-360-ruleB20260303-P-360JT-UNHIT-NewRisk0226-20260315-OPPO-T-20260315-F-ALL_RICH-OPPO",
+    "note": "",
+    "timestamp": "2026-03-23T02:18:06.294Z"
+  },
+  {
+    "id": 6,
+    "action": "approved",
+    "original": "360JT_BD_dk-360-ruleB20260303-P-360JT-UNHIT-NewRisk0226-20260315-VIVO-T-20260315_IP-VIVO",
+    "normalized": "360JT_BD_dk-360-ruleB20260303-P-360JT-UNHIT-NewRisk0226-20260315-VIVO-T-20260315-F-ALL_IP-VIVO",
+    "final": "360JT_BD_dk-360-ruleB20260303-P-360JT-UNHIT-NewRisk0226-20260315-VIVO-T-20260315-F-ALL_IP-VIVO",
+    "note": "",
+    "timestamp": "2026-03-23T02:18:08.483Z"
+  },
+  {
+    "id": 7,
+    "action": "approved",
+    "original": "360JT_BD_dk-360-ruleB20260303-P-360JT-UNHIT-NewRisk0226-20260315-XIAOMI-T-20260315_XIAOMI",
+    "normalized": "360JT_BD_dk-360-ruleB20260303-P-360JT-UNHIT-NewRisk0226-20260315-XIAOMI-T-20260315-F-ALL_XIAOMI",
+    "final": "360JT_BD_dk-360-ruleB20260303-P-360JT-UNHIT-NewRisk0226-20260315-XIAOMI-T-20260315-F-ALL_XIAOMI",
+    "note": "",
+    "timestamp": "2026-03-23T02:18:09.835Z"
+  },
+  {
+    "id": 8,
+    "action": "approved",
+    "original": "ZAXD_BD_dk-YXH-ruleA-P-MIX-PD-T-20260316",
+    "normalized": "ZAXD_BD_dk-YXH-ruleA-P-MIX-PD-T-20260316-F-ALL",
+    "final": "ZAXD_BD_dk-YXH-ruleA-P-MIX-PD-T-20260316-F-ALL",
+    "note": "",
+    "timestamp": "2026-03-23T02:18:17.734Z"
+  },
+  {
+    "id": 9,
+    "action": "approved",
+    "original": "ZAXD_BD_dk-ZAXD-ruleA-P-MIX-PD-OTHER-ROI-10-15-6-T-20260316",
+    "normalized": "ZAXD_BD_dk-ZAXD-ruleA-P-MIX-PD-OTHER-ROI-10-15-6-T-20260316-F-ALL",
+    "final": "ZAXD_BD_dk-ZAXD-ruleA-P-MIX-PD-OTHER-ROI-10-15-6-T-20260316-F-ALL",
+    "note": "",
+    "timestamp": "2026-03-23T02:19:44.591Z"
+  },
+  {
+    "id": 10,
+    "action": "approved",
+    "original": "ZAXD_BD_dk-ZAXD-ruleA-P-MIX-ROI-8-20-T-260316-T-20260316",
+    "normalized": "ZAXD_BD_dk-ZAXD-ruleA-P-MIX-ROI-8-20-T-20260316-F-ALL",
+    "final": "ZAXD_BD_dk-ZAXD-ruleA-P-MIX-ROI-8-20-T-20260316-F-ALL",
+    "note": "",
+    "timestamp": "2026-03-23T02:19:45.354Z"
+  },
+  {
+    "id": 11,
+    "action": "approved",
+    "original": "ZAXD_BD_dk-ZAXD-ruleA-P-MIX-ROI-OVER20-T-260316-T-20260316",
+    "normalized": "ZAXD_BD_dk-ZAXD-ruleA-P-MIX-ROI-OVER20-T-20260316-F-ALL",
+    "final": "ZAXD_BD_dk-ZAXD-ruleA-P-MIX-ROI-OVER20-T-20260316-F-ALL",
+    "note": "",
+    "timestamp": "2026-03-23T02:27:23.535Z"
+  },
+  {
+    "id": 103,
+    "action": "approved",
+    "original": "HB_BD_dk-HB-ruleB20260225-P-HB-RTA16-20-MY-30D-260225-260310",
+    "normalized": "HB_BD_dk-HB-ruleB20260225-P-260225-260310-HB-RTA16-20-MY-30D-F-ALL",
+    "final": "HB_BD_dk-HB-ruleB20260225-P-260225-260310-HB-RTA16-20-MY-30D-F-ALL",
+    "note": "前筛应该是HB-RTA16-20-MY-30D，你不应该把日期加到前筛前面，而且你没有加日期",
+    "timestamp": "2026-03-23T06:13:58.833Z"
+  },
+  {
+    "id": 104,
+    "action": "approved",
+    "original": "HB_BD_dk-HB-ruleA20260225-P-HB-RTA16-20-AC-260225-260302",
+    "normalized": "HB_BD_dk-HB-ruleA20260225-P-HB-RTA16-20-T-20260302-F-AC",
+    "final": "HB_BD_dk-HB-ruleA20260225-P-HB-RTA16-20-T-20260302-F-AC",
+    "note": "",
+    "timestamp": "2026-03-23T06:10:10.538Z"
+  },
+  {
+    "id": 105,
+    "action": "approved",
+    "original": "HB_BD_dk-HB-ruleA20260225-P-HB-RTA16-20-AC-260225-260302",
+    "normalized": "HB_BD_dk-HB-ruleA20260225-P-HB-RTA16-20-T-20260302-F-AC",
+    "final": "HB_BD_dk-HB-ruleA20260225-P-HB-RTA16-20-T-20260302-F-AC",
+    "note": "",
+    "timestamp": "2026-03-23T06:10:21.063Z"
+  }
+]
