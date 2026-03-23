@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BD数据分析工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f7fa; }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 20px 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+        .header .sub { font-size: 13px; opacity: 0.9; }
+
+        .nav {
+            background: white; padding: 12px 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            display: flex; gap: 20px;
+        }
+        .nav-item {
+            color: #555; text-decoration: none; font-size: 14px;
+            padding: 6px 12px; border-radius: 4px; transition: all 0.2s;
+        }
+        .nav-item:hover { background: #f0f0f0; color: #333; }
+        .nav-item.active { background: #667eea; color: white; }
+
+        .container { max-width: 100%; margin: 20px; padding: 0 20px; }
+
+        .toolbar {
+            background: white; padding: 15px 20px; border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 15px;
+            display: flex; gap: 15px; align-items: center; flex-wrap: wrap;
+        }
+        .toolbar select, .toolbar input {
+            padding: 8px 12px; border: 1px solid #ddd;
+            border-radius: 6px; font-size: 13px;
+        }
+        .toolbar select:focus, .toolbar input:focus { outline: none; border-color: #667eea; }
+        .toolbar input { flex: 1; min-width: 200px; }
+        .btn {
+            padding: 8px 16px; border: none; border-radius: 6px;
+            font-size: 13px; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5568d3; }
+
+        .stats {
+            background: white; padding: 12px 20px; border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 15px;
+            display: flex; gap: 25px; align-items: center; font-size: 13px;
+        }
+        .stat-item { display: flex; align-items: center; gap: 8px; }
+        .stat-label { color: #666; }
+        .stat-value { font-weight: 600; color: #667eea; }
+
+        .table-wrap {
+            background: white; border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%; border-collapse: collapse;
+            font-size: 12px;
+        }
+        th {
+            background: #1a1a2e; color: white;
+            padding: 10px 8px; text-align: left;
+            font-weight: 500; white-space: nowrap;
+            position: sticky; top: 0; z-index: 10;
+            border-right: 1px solid #2a2a3e;
+            resize: horizontal; overflow: hidden;
+            min-width: 60px;
+        }
+        th:last-child { border-right: none; }
+        td {
+            padding: 8px; border-bottom: 1px solid #f0f0f0;
+            white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        tr:hover { background: #f8f9ff; }
+        tr.approved { background: #f0fff4; }
+        tr.rejected { background: #fff5f5; }
+
+        .field-cell { font-family: 'Consolas', monospace; font-size: 11px; }
+        .field-m { color: #5c35b0; }
+        .field-f { color: #b06000; }
+        .field-empty { color: #ccc; font-style: italic; }
+
+        .badge {
+            display: inline-block; padding: 3px 8px;
+            border-radius: 3px; font-size: 11px; font-weight: 500;
+        }
+
+        .btn-delete {
+            padding: 5px 12px; border: none; border-radius: 4px;
+            font-size: 11px; cursor: pointer; transition: all 0.15s;
+            background: #fee2e2; color: #991b1b;
+        }
+        .btn-delete:hover { background: #fecaca; }
+
+        .pagination {
+            display: flex; justify-content: center; align-items: center;
+            gap: 10px; margin-top: 15px; font-size: 13px;
+        }
+        .page-btn {
+            padding: 6px 12px; border: 1px solid #ddd;
+            background: white; border-radius: 4px; cursor: pointer;
+        }
+        .page-btn:hover { background: #f0f0f0; }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .toast {
+            position: fixed; top: 20px; right: 20px;
+            padding: 12px 20px; border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-size: 13px; z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.ok { background: #48bb78; color: white; }
+        .toast.err { background: #e53e3e; color: white; }
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .empty { text-align: center; padding: 60px 20px; color: #999; }
+
+        /* 聚合分析区域 */
+        .aggregate-section {
+            margin-top: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 20px;
+        }
+        .aggregate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .aggregate-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .aggregate-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .aggregate-controls label {
+            font-size: 13px;
+            color: #555;
+        }
+        .aggregate-controls select {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .agg-expand {
+            cursor: pointer;
+            user-select: none;
+            color: #667eea;
+            font-weight: bold;
+            display: inline-block;
+            width: 16px;
+            text-align: center;
+        }
+        .agg-expand:hover {
+            color: #5568d3;
+        }
+        .agg-row-collapsed {
+            display: none;
+        }
+        .agg-indent-1 { padding-left: 40px; }
+        .agg-indent-2 { padding-left: 80px; }
+        .agg-indent-3 { padding-left: 120px; }
+            color: #666;
+            margin-right: 5px;
+        }
+        .aggregate-controls select {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .aggregate-table-wrap {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+        .aggregate-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .aggregate-table th {
+            background: #f5f5f5;
+            color: #333;
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            border-bottom: 2px solid #ddd;
+        }
+        .aggregate-table td {
+            padding: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .aggregate-table tr:hover {
+            background: #f8f9ff;
+        }
+        .agg-dim { font-weight: 600; color: #667eea; }
+        .agg-num { text-align: right; font-family: 'Consolas', monospace; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+            <h1>BD数据分析工具</h1>
+            <div class="sub">AI外呼+短信营销获客业务</div>
+        </div>
+    </div>
+</div>
+<div class="nav">
+    <a href="/" class="nav-item active">模型名称规范化</a>
+    <a href="/rules" class="nav-item">规则学习</a>
+    <a href="/models" class="nav-item">模型管理</a>
+</div>
+
+<div class="container">
+    <div class="toolbar">
+        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display:none;" />
+        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">开始分析</button>
+        <select id="fProduct"><option value="all">全部产品</option></select>
+        <input type="text" id="fSearch" placeholder="搜索模型名称..." />
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;">
+            <input type="checkbox" id="hideZeroData" checked style="cursor:pointer;">
+            <span style="font-size:13px;color:#555;">隐藏全0数据</span>
+        </label>
+    </div>
+
+    <div class="stats">
+        <div class="stat-item"><span class="stat-label">总数：</span><span class="stat-value" id="sTotal">0</span></div>
+        <div class="stat-item"><span class="stat-label">当前显示：</span><span class="stat-value" id="sShowing">0</span></div>
+        <div class="stat-item"><span class="stat-label">已隐藏：</span><span class="stat-value" id="sHidden">0</span></div>
+    </div>
+
+    <div class="table-wrap">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th style="width:40px">#</th>
+                    <th style="width:50px">产品</th>
+                    <th style="width:50px">类型</th>
+                    <th style="width:150px">模型名</th>
+                    <th style="width:120px">主体M</th>
+                    <th style="width:50px">得分F</th>
+                    <th style="width:70px">到达</th>
+                    <th style="width:60px">点击</th>
+                    <th style="width:60px">注册</th>
+                    <th style="width:60px">申完</th>
+                    <th style="width:60px">过审</th>
+                    <th style="width:70px">结算</th>
+                    <th style="width:60px">成本</th>
+                    <th style="width:60px">毛利</th>
+                    <th style="width:60px">ROI</th>
+                    <th style="width:60px">点击率</th>
+                    <th style="width:60px">注册率</th>
+                    <th style="width:60px">审完率</th>
+                    <th style="width:60px">过审率</th>
+                    <th style="width:80px">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr><td colspan="17" class="empty">加载中...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination" id="pagination" style="display:none">
+        <button class="page-btn" onclick="prevPage()" id="btnPrev">上一页</button>
+        <span id="pageInfo">1 / 1</span>
+        <button class="page-btn" onclick="nextPage()" id="btnNext">下一页</button>
+    </div>
+
+    <!-- 聚合分析 -->
+    <div class="aggregate-section">
+        <div class="aggregate-header">
+            <h2>聚合分析</h2>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <span style="font-size:13px;color:#666;">展开到：</span>
+                <button class="btn btn-primary" onclick="expandToLevel(1)" style="padding:5px 10px;font-size:12px;">产品</button>
+                <button class="btn btn-primary" onclick="expandToLevel(2)" style="padding:5px 10px;font-size:12px;">模型主体</button>
+                <button class="btn btn-primary" onclick="expandToLevel(3)" style="padding:5px 10px;font-size:12px;">得分</button>
+                <button class="btn btn-primary" onclick="collapseAll()" style="padding:5px 10px;font-size:12px;background:#999;">全部折叠</button>
+            </div>
+        </div>
+        <div class="aggregate-table-wrap">
+            <table class="aggregate-table">
+                <thead>
+                    <tr>
+                        <th id="aggDimHeader" style="min-width:160px">维度</th>
+                        <th class="agg-num">条数</th>
+                        <th class="agg-num">到达</th>
+                        <th class="agg-num">点击</th>
+                        <th class="agg-num">注册</th>
+                        <th class="agg-num">申完</th>
+                        <th class="agg-num">过审</th>
+                        <th class="agg-num">结算</th>
+                        <th class="agg-num">ROI</th>
+                        <th class="agg-num">点击率</th>
+                        <th class="agg-num">注册率</th>
+                        <th class="agg-num">审完率</th>
+                        <th class="agg-num">过审率</th>
+                        <th class="agg-num">成本</th>
+                        <th class="agg-num">毛利</th>
+                    </tr>
+                </thead>
+                <tbody id="aggTableBody">
+                    <tr><td colspan="12" style="text-align:center;color:#999;padding:30px">请先加载数据</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+let allData = [];
+let filteredData = [];
+let deletedIds = new Set();  // 记录已删除的行
+let page = 1;
+const PAGE = 50;
+
+function esc(s) {
+    const div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+}
+
+function toast(msg, type = 'ok') {
+    const div = document.createElement('div');
+    div.className = `toast ${type}`;
+    div.textContent = msg;
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
+}
+
+async function uploadFile(file) {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        toast('正在上传文件...', 'ok');
+        const res = await fetch('/api/upload_file', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        allData = data.data;
+
+        // 填充产品筛选器
+        const products = [...new Set(allData.map(d => d.product))].sort();
+        const sel = document.getElementById('fProduct');
+        sel.innerHTML = '<option value="all">全部产品</option>' +
+            products.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+
+        // 重置删除记录和过滤器
+        deletedIds.clear();
+        applyFilter();
+        renderAggregate();
+        toast(`文件加载完成，共 ${allData.length} 条`, 'ok');
+    } catch (err) {
+        toast('文件上传失败: ' + err.message, 'err');
+    }
+}
+
+// 文件选择事件监听需要在DOM加载后绑定
+window.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            uploadFile(file);
+        }
+        // 清空input，允许重复选择同一文件
+        e.target.value = '';
+    });
+});
+
+function applyFilter(resetPage = true) {
+    const product = document.getElementById('fProduct').value;
+    const search = document.getElementById('fSearch').value.toLowerCase();
+    const hideZero = document.getElementById('hideZeroData').checked;
+
+    filteredData = allData.filter(d => {
+        if (deletedIds.has(d.id)) return false;  // 过滤已删除的行
+
+        // 过滤全0数据（到达、点击、注册、申完、过审全为0）
+        if (hideZero && d.arrival === 0 && d.click === 0 && d.register === 0 && d.apply === 0 && d.approve === 0) {
+            return false;
+        }
+
+        if (product !== 'all' && d.product !== product) return false;
+        if (search && !d.original.toLowerCase().includes(search)) return false;
+        return true;
+    });
+
+    if (resetPage) {
+        page = 1;
+    }
+    renderTable();
+    updateStats();
+}
+
+function updateStats() {
+    const hideZero = document.getElementById('hideZeroData').checked;
+
+    // 计算被隐藏的数量
+    let hiddenCount = deletedIds.size;
+    if (hideZero) {
+        hiddenCount += allData.filter(d =>
+            !deletedIds.has(d.id) &&
+            d.arrival === 0 && d.click === 0 && d.register === 0 && d.apply === 0 && d.approve === 0
+        ).length;
+    }
+
+    document.getElementById('sTotal').textContent = allData.length;
+    document.getElementById('sShowing').textContent = filteredData.length;
+    document.getElementById('sHidden').textContent = hiddenCount;
+}
+
+function renderTable() {
+    if (!filteredData.length) {
+        document.getElementById('tableBody').innerHTML = '<tr><td colspan="17" class="empty">没有符合条件的数据</td></tr>';
+        document.getElementById('pagination').style.display = 'none';
+        return;
+    }
+
+    const start = (page - 1) * PAGE;
+    const pageData = filteredData.slice(start, start + PAGE);
+
+    const rows = pageData.map((d, i) => {
+        const p = d.parts;
+        const fM = p.model_key && p.model_key !== 'unknown'
+            ? `<span class="field-cell field-m">${esc(p.model_key)}</span>`
+            : `<span class="field-cell field-empty">${esc(p.model_key || '未识别')}</span>`;
+        const fF = p.f_score
+            ? `<span class="field-cell field-f">${esc(p.f_score)}</span>`
+            : `<span class="field-cell field-f" style="opacity:0.4">ALL</span>`;
+
+        return `<tr>
+            <td>${start + i + 1}</td>
+            <td style="font-weight:500">${esc(d.product)}</td>
+            <td style="font-size:10px;color:#888">${esc(d.model_type)}</td>
+            <td title="${esc(d.original)}">${esc(d.original)}</td>
+            <td>${fM}</td>
+            <td>${fF}</td>
+            <td style="text-align:right">${d.arrival.toLocaleString()}</td>
+            <td style="text-align:right">${d.click.toLocaleString()}</td>
+            <td style="text-align:right">${d.register.toLocaleString()}</td>
+            <td style="text-align:right">${d.apply.toLocaleString()}</td>
+            <td style="text-align:right">${d.approve.toLocaleString()}</td>
+            <td style="text-align:right">${d.settlement.toLocaleString()}</td>
+            <td style="text-align:right">${d.cost.toLocaleString()}</td>
+            <td style="text-align:right">${d.profit.toLocaleString()}</td>
+            <td style="text-align:right">${d.roi.toFixed(2)}</td>
+            <td style="text-align:right">${(d.click_rate * 100).toFixed(2)}%</td>
+            <td style="text-align:right">${(d.reg_rate * 100).toFixed(2)}%</td>
+            <td style="text-align:right">${(d.apply_rate * 100).toFixed(2)}%</td>
+            <td style="text-align:right">${(d.approve_rate * 100).toFixed(2)}%</td>
+            <td><button class="btn-delete" onclick="deleteRow(${d.id})">删除</button></td>
+        </tr>`;
+    }).join('');
+
+    document.getElementById('tableBody').innerHTML = rows;
+
+    // 分页
+    const totalPages = Math.ceil(filteredData.length / PAGE);
+    document.getElementById('pageInfo').textContent = `${page} / ${totalPages}`;
+    document.getElementById('btnPrev').disabled = page === 1;
+    document.getElementById('btnNext').disabled = page === totalPages;
+    document.getElementById('pagination').style.display = totalPages > 1 ? 'flex' : 'none';
+}
+
+function prevPage() { if (page > 1) { page--; renderTable(); } }
+function nextPage() { if (page < Math.ceil(filteredData.length / PAGE)) { page++; renderTable(); } }
+
+function deleteRow(id) {
+    if (!confirm('确定要删除这一行吗？')) return;
+    deletedIds.add(id);
+    applyFilter(false);  // 不重置页码
+    toast('已删除', 'ok');
+}
+
+document.getElementById('fProduct').addEventListener('change', () => { applyFilter(); renderAggregate(); });
+document.getElementById('fSearch').addEventListener('input', () => { applyFilter(); renderAggregate(); });
+document.getElementById('hideZeroData').addEventListener('change', () => { applyFilter(); renderAggregate(); });
+
+// 树形聚合分析的展开状态
+const expandedNodes = new Set();
+
+function toggleNode(nodeId) {
+    if (expandedNodes.has(nodeId)) {
+        expandedNodes.delete(nodeId);
+    } else {
+        expandedNodes.add(nodeId);
+    }
+    renderAggregate();
+}
+
+function expandToLevel(level) {
+    // level: 1=产品, 2=模型主体, 3=得分
+    if (!filteredData.length) return;
+
+    const mapModelType = (type) => {
+        if (type === '卡片' || type === '群发') return '群发';
+        if (type === '外呼' || type === '意向') return '外呼';
+        return type || '(未知)';
+    };
+
+    expandedNodes.clear();
+    const hierarchy = {};
+
+    filteredData.forEach(d => {
+        const type = mapModelType(d.model_type);
+        const product = d.product || '(未知)';
+        const modelKey = d.parts.model_key || '(未知)';
+
+        if (!hierarchy[type]) hierarchy[type] = {};
+        if (!hierarchy[type][product]) hierarchy[type][product] = {};
+        if (!hierarchy[type][product][modelKey]) hierarchy[type][product][modelKey] = true;
+    });
+
+    // 展开到指定层级
+    Object.keys(hierarchy).forEach(type => {
+        const typeId = `type_${type}`;
+        if (level >= 1) {
+            expandedNodes.add(typeId);  // 展开任务类型，显示产品
+        }
+
+        if (level >= 2) {
+            Object.keys(hierarchy[type]).forEach(product => {
+                const productId = `${typeId}_prod_${product}`;
+                expandedNodes.add(productId);  // 展开产品，显示模型主体
+            });
+        }
+
+        if (level >= 3) {
+            Object.keys(hierarchy[type]).forEach(product => {
+                const productId = `${typeId}_prod_${product}`;
+                Object.keys(hierarchy[type][product]).forEach(modelKey => {
+                    const modelKeyId = `${productId}_model_${modelKey}`;
+                    expandedNodes.add(modelKeyId);  // 展开模型主体，显示得分
+                });
+            });
+        }
+    });
+
+    renderAggregate();
+}
+
+function collapseAll() {
+    expandedNodes.clear();
+    renderAggregate();
+}
+
+function renderAggregate() {
+    if (!filteredData.length) {
+        document.getElementById('aggTableBody').innerHTML =
+            '<tr><td colspan="15" style="text-align:center;color:#999;padding:30px">暂无数据</td></tr>';
+        return;
+    }
+
+    const fmt = n => n.toLocaleString();
+    const pct = n => (n * 100).toFixed(2) + '%';
+
+    // 任务类型映射：卡片和群发合并为群发，外呼和意向合并为外呼
+    const mapModelType = (type) => {
+        if (type === '卡片' || type === '群发') return '群发';
+        if (type === '外呼' || type === '意向') return '外呼';
+        return type || '(未知)';
+    };
+
+    // 构建层级数据：任务类型 > 产品 > 模型主体 > 得分
+    const hierarchy = {};
+    filteredData.forEach(d => {
+        const type = mapModelType(d.model_type);
+        const product = d.product || '(未知)';
+        const modelKey = d.parts.model_key || '(未知)';
+        const score = d.parts.f_score || 'ALL';
+
+        if (!hierarchy[type]) hierarchy[type] = {};
+        if (!hierarchy[type][product]) hierarchy[type][product] = {};
+        if (!hierarchy[type][product][modelKey]) hierarchy[type][product][modelKey] = {};
+        if (!hierarchy[type][product][modelKey][score]) {
+            hierarchy[type][product][modelKey][score] = { count: 0, arrival: 0, click: 0, register: 0, apply: 0, approve: 0, settlement: 0, cost: 0 };
+        }
+
+        const g = hierarchy[type][product][modelKey][score];
+        g.count++;
+        g.arrival += d.arrival;
+        g.click += d.click;
+        g.register += d.register;
+        g.apply += d.apply;
+        g.approve += d.approve;
+        g.settlement += d.settlement;
+        g.cost += d.cost;
+    });
+
+    // 聚合函数
+    const aggregate = (items) => {
+        const result = { count: 0, arrival: 0, click: 0, register: 0, apply: 0, approve: 0, settlement: 0, cost: 0 };
+        Object.values(items).forEach(item => {
+            if (typeof item === 'object' && item.count !== undefined) {
+                result.count += item.count;
+                result.arrival += item.arrival;
+                result.click += item.click;
+                result.register += item.register;
+                result.apply += item.apply;
+                result.approve += item.approve;
+                result.settlement += item.settlement;
+                result.cost += item.cost;
+            } else {
+                const sub = aggregate(item);
+                result.count += sub.count;
+                result.arrival += sub.arrival;
+                result.click += sub.click;
+                result.register += sub.register;
+                result.apply += sub.apply;
+                result.approve += sub.approve;
+                result.settlement += sub.settlement;
+                result.cost += sub.cost;
+            }
+        });
+        return result;
+    };
+
+    // 渲染行
+    const renderRow = (label, data, level, nodeId, hasChildren) => {
+        const profit = data.settlement - data.cost;
+        const roi = data.cost > 0 ? data.settlement / data.cost : 0;
+        const clickRate = data.arrival > 0 ? data.click / data.arrival : 0;
+        const regRate = data.click > 0 ? data.register / data.click : 0;
+        const applyRate = data.register > 0 ? data.apply / data.register : 0;
+        const approveRate = data.apply > 0 ? data.approve / data.apply : 0;
+
+        const isExpanded = expandedNodes.has(nodeId);
+        const expandIcon = hasChildren ? (isExpanded ? '▼' : '▶') : '';
+        const indent = 'agg-indent-' + level;
+        const fontWeight = level === 0 ? 'font-weight:600;' : '';
+
+        return `<tr data-node-id="${nodeId}" style="${fontWeight}">
+            <td class="${indent}">
+                ${hasChildren ? `<span class="agg-expand" onclick="toggleNode('${nodeId}')">${expandIcon}</span>` : '<span style="display:inline-block;width:16px;"></span>'}
+                ${esc(label)}
+            </td>
+            <td class="agg-num">${data.count}</td>
+            <td class="agg-num">${fmt(data.arrival)}</td>
+            <td class="agg-num">${fmt(data.click)}</td>
+            <td class="agg-num">${fmt(data.register)}</td>
+            <td class="agg-num">${fmt(data.apply)}</td>
+            <td class="agg-num">${fmt(data.approve)}</td>
+            <td class="agg-num">${fmt(data.settlement)}</td>
+            <td class="agg-num">${roi.toFixed(2)}</td>
+            <td class="agg-num">${pct(clickRate)}</td>
+            <td class="agg-num">${pct(regRate)}</td>
+            <td class="agg-num">${pct(applyRate)}</td>
+            <td class="agg-num">${pct(approveRate)}</td>
+            <td class="agg-num">${fmt(data.cost)}</td>
+            <td class="agg-num">${fmt(profit)}</td>
+        </tr>`;
+    };
+
+    let rows = [];
+
+    // 遍历层级结构
+    Object.keys(hierarchy).sort().forEach(type => {
+        const typeId = `type_${type}`;
+        const typeData = aggregate(hierarchy[type]);
+        rows.push(renderRow(type, typeData, 0, typeId, true));
+
+        if (expandedNodes.has(typeId)) {
+            Object.keys(hierarchy[type]).sort().forEach(product => {
+                const productId = `${typeId}_prod_${product}`;
+                const productData = aggregate(hierarchy[type][product]);
+                rows.push(renderRow(product, productData, 1, productId, true));
+
+                if (expandedNodes.has(productId)) {
+                    Object.keys(hierarchy[type][product]).sort().forEach(modelKey => {
+                        const modelKeyId = `${productId}_model_${modelKey}`;
+                        const modelKeyData = aggregate(hierarchy[type][product][modelKey]);
+                        rows.push(renderRow(modelKey, modelKeyData, 2, modelKeyId, true));
+
+                        if (expandedNodes.has(modelKeyId)) {
+                            Object.keys(hierarchy[type][product][modelKey]).sort().forEach(score => {
+                                const scoreId = `${modelKeyId}_score_${score}`;
+                                const scoreData = hierarchy[type][product][modelKey][score];
+                                rows.push(renderRow(score, scoreData, 3, scoreId, false));
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
+
+    // 总计行
+    const total = aggregate(hierarchy);
+    const totalProfit = total.settlement - total.cost;
+    const totalRoi = total.cost > 0 ? total.settlement / total.cost : 0;
+    const totalClickRate = total.arrival > 0 ? total.click / total.arrival : 0;
+    const totalRegRate = total.click > 0 ? total.register / total.click : 0;
+    const totalApplyRate = total.register > 0 ? total.apply / total.register : 0;
+    const totalApproveRate = total.apply > 0 ? total.approve / total.apply : 0;
+
+    const totalRow = `<tr style="background:#f5f5f5;font-weight:600;border-top:2px solid #ddd">
+        <td>总计</td>
+        <td class="agg-num">${total.count}</td>
+        <td class="agg-num">${fmt(total.arrival)}</td>
+        <td class="agg-num">${fmt(total.click)}</td>
+        <td class="agg-num">${fmt(total.register)}</td>
+        <td class="agg-num">${fmt(total.apply)}</td>
+        <td class="agg-num">${fmt(total.approve)}</td>
+        <td class="agg-num">${fmt(total.settlement)}</td>
+        <td class="agg-num">${totalRoi.toFixed(2)}</td>
+        <td class="agg-num">${pct(totalClickRate)}</td>
+        <td class="agg-num">${pct(totalRegRate)}</td>
+        <td class="agg-num">${pct(totalApplyRate)}</td>
+        <td class="agg-num">${pct(totalApproveRate)}</td>
+        <td class="agg-num">${fmt(total.cost)}</td>
+        <td class="agg-num">${fmt(totalProfit)}</td>
+    </tr>`;
+
+    document.getElementById('aggTableBody').innerHTML = rows.join('') + totalRow;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BD数据工具 - 规则学习</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #333; }
+
+        .header { background: #1a1a2e; color: white; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+        .header h1 { font-size: 17px; font-weight: 600; }
+        .header .sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+        .nav { background: #16213e; padding: 0 24px; display: flex; gap: 4px; }
+        .nav-item { padding: 11px 18px; color: #aaa; cursor: pointer; font-size: 13px; border-bottom: 3px solid transparent; text-decoration: none; display: block; }
+        .nav-item.active { color: #4fc3f7; border-bottom-color: #4fc3f7; }
+        .nav-item:hover { color: #fff; }
+
+        .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
+
+        .summary-bar {
+            background: white; border-radius: 8px; padding: 16px 20px;
+            margin-bottom: 18px; display: flex; align-items: center; gap: 32px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .summary-bar .s-item { text-align: center; }
+        .summary-bar .s-n { font-size: 24px; font-weight: 700; color: #1976d2; }
+        .summary-bar .s-l { font-size: 11px; color: #999; margin-top: 2px; }
+        .summary-bar .s-item.changed .s-n { color: #e65100; }
+        .summary-bar .s-item.ok .s-n { color: #2e7d32; }
+        .summary-bar .desc { flex: 1; font-size: 13px; color: #666; line-height: 1.7; }
+
+        .btn { padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 500; }
+        .btn-primary { background: #1976d2; color: white; }
+
+        .rules-grid { display: flex; flex-direction: column; gap: 14px; }
+
+        .rule-card {
+            background: white; border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .rule-header {
+            display: flex; align-items: center; gap: 12px;
+            padding: 13px 18px; border-bottom: 1px solid #f0f0f0;
+            cursor: pointer; user-select: none;
+        }
+        .rule-header:hover { background: #fafafa; }
+        .rule-id {
+            background: #1a1a2e; color: white;
+            padding: 3px 9px; border-radius: 12px; font-size: 11px; font-weight: 600;
+            white-space: nowrap;
+        }
+        .rule-title { font-size: 14px; font-weight: 600; flex: 1; }
+        .rule-count {
+            background: #fff3e0; color: #e65100;
+            padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: 600;
+        }
+        .rule-count.zero { background: #f5f5f5; color: #999; }
+        .toggle-icon { color: #aaa; font-size: 12px; }
+
+        .rule-body { padding: 14px 18px; }
+        .rule-desc { font-size: 13px; color: #555; margin-bottom: 12px; line-height: 1.6; }
+
+        .pattern-box {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            margin-bottom: 14px;
+        }
+        .pattern-item { background: #f8f9ff; border-radius: 6px; padding: 10px 12px; }
+        .pattern-item .pl { font-size: 10px; color: #999; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .pattern-item .pv {
+            font-family: 'Consolas', monospace; font-size: 12px;
+            color: #333; word-break: break-all;
+        }
+        .pattern-item.fix .pv { color: #1565c0; }
+
+        .examples-title { font-size: 11px; color: #999; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .example-row {
+            border: 1px solid #e8eaf6; border-radius: 6px; padding: 10px 12px;
+            margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 11.5px;
+        }
+        .example-row .ex-before { color: #888; margin-bottom: 5px; }
+        .example-row .ex-after { color: #1565c0; }
+        .example-row .ex-label { font-size: 10px; color: #bbb; font-family: sans-serif; margin-bottom: 2px; }
+
+        .highlight-diff { }
+        .hl-add { background: #e3f2fd; color: #0d47a1; border-radius: 2px; padding: 0 2px; font-weight: 700; }
+        .hl-rem { background: #ffebee; color: #b71c1c; border-radius: 2px; padding: 0 2px; text-decoration: line-through; }
+
+        .empty { text-align: center; padding: 60px; color: #aaa; font-size: 14px; }
+        .spinner { width: 32px; height: 32px; margin: 0 auto 14px; border: 3px solid #eee; border-top-color: #1976d2; border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .rule-body.collapsed { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div>
+        <h1>BD数据分析工具</h1>
+        <div class="sub">AI外呼+短信营销获客业务</div>
+    </div>
+</div>
+<div class="nav">
+    <a href="/" class="nav-item">模型名称规范化</a>
+    <a href="/rules" class="nav-item active">规则学习</a>
+    <a href="/models" class="nav-item">模型管理</a>
+</div>
+
+<div class="container">
+    <div id="content">
+        <div class="empty"><div class="spinner"></div>正在分析映射表...</div>
+    </div>
+</div>
+
+<script>
+async function loadRules() {
+    try {
+        const r = await fetch('/api/learn_rules');
+        const j = await r.json();
+        if (!j.success) throw new Error(j.error);
+        renderPage(j);
+    } catch(e) {
+        document.getElementById('content').innerHTML =
+            `<div class="empty" style="color:#c62828">加载失败：${e.message}</div>`;
+    }
+}
+
+function renderPage(data) {
+    const rules = data.rules;
+    let html = `
+    <div class="summary-bar">
+        <div class="s-item"><div class="s-n">${data.total}</div><div class="s-l">映射表总行数</div></div>
+        <div class="s-item changed"><div class="s-n">${data.changed}</div><div class="s-l">有修改</div></div>
+        <div class="s-item ok"><div class="s-n">${data.unchanged}</div><div class="s-l">无需修改</div></div>
+        <div class="desc">
+            以下规则从 <strong>模型名修正映射关系_20260323.xlsx</strong> 中归纳，
+            共识别 <strong>${rules.filter(r=>r.count>0).length}</strong> 类命名问题，
+            覆盖 ${rules.reduce((s,r)=>s+r.count,0)} 条变更记录（含重叠）。
+        </div>
+        <button class="btn btn-primary" onclick="loadRules()">重新分析</button>
+    </div>
+    <div class="rules-grid">`;
+
+    rules.forEach((rule, idx) => {
+        const countCls = rule.count === 0 ? 'zero' : '';
+        html += `
+        <div class="rule-card">
+            <div class="rule-header" onclick="toggleRule(${idx})">
+                <span class="rule-id">${rule.id}</span>
+                <span class="rule-title">${esc(rule.title)}</span>
+                <span class="rule-count ${countCls}">${rule.count} 条</span>
+                <span class="toggle-icon" id="icon-${idx}">▼</span>
+            </div>
+            <div class="rule-body" id="body-${idx}">
+                <div class="rule-desc">${esc(rule.desc)}</div>
+                <div class="pattern-box">
+                    <div class="pattern-item">
+                        <div class="pl">修改前模式</div>
+                        <div class="pv">${esc(rule.pattern)}</div>
+                    </div>
+                    <div class="pattern-item fix">
+                        <div class="pl">修改后模式</div>
+                        <div class="pv">${esc(rule.fix)}</div>
+                    </div>
+                </div>
+                ${rule.examples.length ? `
+                <div class="examples-title">实际案例</div>
+                ${rule.examples.map(ex => `
+                <div class="example-row">
+                    <div class="ex-label">修改前</div>
+                    <div class="ex-before">${esc(ex.before)}</div>
+                    <div class="ex-label">修改后</div>
+                    <div class="ex-after">${esc(ex.after)}</div>
+                </div>`).join('')}` : ''}
+            </div>
+        </div>`;
+    });
+
+    html += `</div>`;
+    document.getElementById('content').innerHTML = html;
+}
+
+function toggleRule(idx) {
+    const body = document.getElementById(`body-${idx}`);
+    const icon = document.getElementById(`icon-${idx}`);
+    body.classList.toggle('collapsed');
+    icon.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
+}
+
+function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+loadRules();
+</script>
+</body>
+</html>
